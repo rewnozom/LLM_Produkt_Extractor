@@ -1,0 +1,137 @@
+name: enhanced_extraction_template
+description: Omfattande mall för extrahering av produktidentifiering, kompatibilitet och tekniska specifikationer
+version: "1.0"
+tags:
+  - extraction
+  - compatibility
+  - technical
+  - combined
+extraction_type: combined
+
+schema:
+  product: {}
+  relations: []
+  specifications: []
+  data_tables: []
+
+template: |
+  Du är en expert på att extrahera strukturerad produktinformation från dokumentation.
+  Jag kommer ge dig markdown-text från en produktdokumentation, och din uppgift är att:
+
+  1. IDENTIFIERA PRODUKTINFORMATION:
+     - Extrahera produktens titel/namn
+     - Hitta produktens artikelnummer
+     - Hitta produktens EAN-nummer om det finns
+     - Identifiera eventuella andra produktidentifierare
+
+  2. EXTRAHERA KOMPATIBILITETSINFORMATION:
+     - Hitta ALLA kompatibilitetsrelationer i texten
+     - Identifiera den exakta relationstypen (t.ex. "passar till", "kompatibel med", "ersätter", "kräver")
+     - Identifiera den relaterade produkten med exakt namn
+     - För relaterade produkter, hitta artikelnummer och EAN-kod när tillgängligt
+     - För varje relation, extrahera ett kort textstycke som innehåller relationsinformationen för kontext
+
+  3. EXTRAHERA TEKNISKA SPECIFIKATIONER:
+     - Hitta ALLA individuella tekniska specifikationer i texten
+     - Klassificera specifikationstypen (t.ex. "dimensioner", "elektriska", "vikt", "material")
+     - Extrahera namn, värde och enhet för varje specifikation
+     - För varje specifikation, extrahera ett kort stycke text som innehåller specifikationen för kontext
+
+  4. IDENTIFIERA DATATABELLER:
+     - Hitta datatabeller som innehåller tekniska specifikationer eller annan strukturerad information
+     - Extrahera tabellens titel/beskrivning
+     - Extrahera alla rader i tabellen med property-value par
+
+  Var MYCKET NOGGRANN med att:
+  - Inkludera exakta produktnamn, artikelnummer och EAN när de finns
+  - Identifiera rätt relationstyp som matchar exakt hur produkterna relaterar till varandra
+  - Separera värde och enhet korrekt i tekniska specifikationer
+  - Kategorisera specifikationer i rätt kategori
+  - Inkludera ALLA relevanta datapunkter, även om de är indirekta eller implicita
+
+  VIKTIGT: Inkludera ENDAST de sektioner som faktiskt innehåller information. 
+  Om produktdokumentationen inte innehåller relationer, ska du inte inkludera "relations"-sektionen alls.
+  Om produktdokumentationen inte innehåller tekniska specifikationer, ska du inte inkludera "specifications"-sektionen.
+  Om produktdokumentationen inte innehåller datatabeller, ska du inte inkludera "data_tables"-sektionen.
+  Om produktdokumentationen inte innehåller tydlig produktidentifiering, ska du inte inkludera "product"-sektionen.
+
+  Svar ENDAST i detta JSON-format utan förklaringar eller annat innehåll:
+
+  ```json
+  {
+    "product": {
+      "title": "Produktnamn",
+      "article_number": "123456",
+      "ean": "7312345678901",
+      "additional_identifiers": [
+        {"type": "model", "value": "XYZ-1000"}
+      ]
+    },
+    "relations": [
+      {
+        "relation_type": "passar till",
+        "related_product": {
+          "name": "Kompatibel Produkt X",
+          "article_number": "654321",
+          "ean": "7312345678902"
+        },
+        "context": "Text som innehåller relationsinformationen..."
+      }
+    ],
+    "specifications": [
+      {
+        "category": "dimensioner",
+        "name": "höjd",
+        "raw_value": "10 cm",
+        "value": 10,
+        "unit": "cm",
+        "context": "Text som innehåller specifikationen..."
+      }
+    ],
+    "data_tables": [
+      {
+        "title": "Tekniska data",
+        "description": "Fullständig tabell med tekniska specifikationer",
+        "rows": [
+          {"property": "Höjd", "value": "10 cm"},
+          {"property": "Bredd", "value": "20 cm"},
+          {"property": "Vikt", "value": "2.5 kg"}
+        ],
+        "context": "Tabellen hittades på sidan 3..."
+      }
+    ]
+  }
+  ```
+
+  Kom ihåg: Ta endast med de sektioner där du faktiskt hittar data. Utelämna hela sektioner om ingen relevant information hittas.
+
+  Här är produktdokumentationen:
+
+  ---
+  {text}
+  ---
+
+improved_instructions: |
+  VIKTIGT: Du MÅSTE följa dessa instruktioner exakt:
+  1. Analysera texten noggrant innan du svarar
+  2. Returnera ENDAST JSON i det begärda formatet utan någon extra text
+  3. Inkludera endast information som faktiskt nämns i texten
+  4. För produktidentifiering, leta efter exakta artikel- och EAN-nummer
+  5. För kompatibilitetsrelationer, var mycket specifik med relationstypen
+  6. För tekniska specifikationer, separera värde och enhet korrekt
+  7. För datatabeller, behåll exakt samma struktur och innehåll som i originalet
+  8. Om det finns numeriska värden i specifikationer, ange korrekt enhet
+  9. Utelämna helt sektioner där ingen relevant information hittas (exempelvis ingen tom "relations": [] om inga relationer finns)
+
+error_prevention: |
+  VANLIGA FEL ATT UNDVIKA:
+  - Returnera inte text utanför JSON-objektet
+  - Trunkera inte svaret eller använd '...' inuti JSON
+  - Inkludera alla obligatoriska fält i varje objekt
+  - Använd dubbla citattecken för JSON-nycklar och strängvärden
+  - Kontrollera att JSON-strukturen är korrekt med korrekt nästlade objekt
+  - Undvik att blanda värde och enhet i 'value' fältet (använd 'raw_value' och 'unit')
+  - Undvik att använda vaga relationstyper som 'relaterad' eller 'kopplad'
+  - Standardisera enheter konsekvent genom hela svaret
+  - Ange inte EAN eller artikelnummer om de inte uttryckligen nämns i texten
+  - Inkludera INTE tomma sektioner - om data saknas, utelämna hela sektionen

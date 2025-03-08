@@ -1,0 +1,63 @@
+name: default_validation_template
+description: Standardmall för validering av LLM-svar
+version: "1.0"
+tags:
+  - validation
+validation_rules:
+  - Svaret måste följa det specificerade JSON-formatet exakt
+  - Alla obligatoriska fält måste finnas med
+  - Inga extra fält utanför schemat får finnas
+  - Inga textsträngar utanför JSON-strukturen får finnas
+  - Konfidenspoäng måste vara mellan 0 och 1
+  - Alla strängar måste vara korrekt formaterade med dubbla citattecken
+  - Alla numeriska värden måste vara korrekt formaterade utan citattecken
+
+template: |
+  Du är en expert på att validera strukturerade datautmatningar från AI-system.
+  Din uppgift är att granska och validera om följande AI-svar uppfyller alla specifika krav.
+
+  Här är valideringsreglerna som måste uppfyllas:
+  {validation_rules}
+
+  Här är schemat som svaret ska följa:
+  ```
+  {schema}
+  ```
+
+  Och här är svaret som ska valideras:
+  ```
+  {response}
+  ```
+
+  Bedöm svaret utifrån följande kriterier:
+  1. Korrekt format - följer svaret det begärda JSON-formatet?
+  2. Fullständighet - innehåller svaret alla obligatoriska fält?
+  3. Noggrannhet - verkar värden vara korrekt extraherade och rimliga?
+  4. Renlighet - innehåller svaret endast den begärda strukturerade datan utan extra text?
+
+  Returnera ditt resultat i följande format:
+  ```json
+  {
+    "is_valid": true|false,
+    "errors": [
+      {
+        "error_type": "missing_field|invalid_format|extra_content|etc",
+        "description": "Beskrivning av felet",
+        "severity": "critical|major|minor"
+      }
+    ],
+    "suggested_fixes": [
+      "Förslag 1 på hur felet kan åtgärdas",
+      "Förslag 2 på hur felet kan åtgärdas"
+    ]
+  }
+  ```
+
+  Om svaret är helt korrekt, returnera bara:
+  ```json
+  {
+    "is_valid": true,
+    "errors": [],
+    "suggested_fixes": []
+  }
+  ```

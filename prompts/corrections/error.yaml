@@ -1,0 +1,83 @@
+name: combined_correction_template
+description: Mall för att korrigera felaktiga extraktioner av produktinformation, kompatibilitet och tekniska specifikationer
+version: "1.0"
+tags:
+  - correction
+  - combined
+error_types:
+  missing_fields: Obligatoriska fält saknas i JSON-strukturen
+  invalid_json: JSON-formatet är ogiltigt eller otillåtna element finns
+  extra_text: Text finns utanför JSON-objektet
+  incomplete_data: Relevant information saknas i svaret
+  invalid_relation_type: Relationstypen är otydlig eller felaktig
+  invalid_unit: Enhet saknas eller är felaktigt formaterad
+  invalid_value: Värdet är inte ett nummer eller saknas
+  category_error: Kategori saknas eller är felaktigt klassificerad
+  empty_sections: Tomma sektioner inkluderades istället för att utelämnas helt
+
+template: |
+  Du fick tidigare en förfrågan att extrahera strukturerad produktinformation (produktidentifiering, kompatibilitetsrelationer, tekniska specifikationer och datatabeller) från produktdokumentation,
+  och genererade följande svar:
+
+  ---
+  {original_response}
+  ---
+
+  Detta svar innehåller följande fel som måste korrigeras:
+  {errors}
+
+  Du måste nu generera ett korrekt svar som följer det begärda JSON-formatet.
+  Var särskilt uppmärksam på följande feltyper:
+  {error_descriptions}
+
+  Kom ihåg: Inkludera ENDAST de sektioner där det faktiskt finns data. Utelämna hela sektioner om ingen relevant information hittas.
+
+  Korrigera felen och generera ett nytt svar som följer det begärda formatet:
+
+  ```json
+  {
+    "product": {
+      "title": "Produktnamn",
+      "article_number": "123456",
+      "ean": "7312345678901",
+      "additional_identifiers": [
+        {"type": "model", "value": "XYZ-1000"}
+      ]
+    },
+    "relations": [
+      {
+        "relation_type": "passar till",
+        "related_product": {
+          "name": "Kompatibel Produkt X",
+          "article_number": "654321",
+          "ean": "7312345678902"
+        },
+        "context": "Text som innehåller relationsinformationen..."
+      }
+    ],
+    "specifications": [
+      {
+        "category": "dimensioner",
+        "name": "höjd",
+        "raw_value": "10 cm",
+        "value": 10,
+        "unit": "cm",
+        "context": "Text som innehåller specifikationen..."
+      }
+    ],
+    "data_tables": [
+      {
+        "title": "Tekniska data",
+        "description": "Fullständig tabell med tekniska specifikationer",
+        "rows": [
+          {"property": "Höjd", "value": "10 cm"},
+          {"property": "Bredd", "value": "20 cm"},
+          {"property": "Vikt", "value": "2.5 kg"}
+        ],
+        "context": "Tabellen hittades på sidan 3..."
+      }
+    ]
+  }
+  ```
+
+  VIKTIGT: Svara ENDAST med JSON-objektet utan förklaringar eller annan text. Inkludera INTE tomma sektioner - om data saknas, utelämna hela sektionen.
